@@ -1,0 +1,15 @@
+import com.banno._
+
+BannoSettings.settings
+
+name := "banno-kernel-root"
+
+addBannoDependencies(
+  "banno-utils",
+  // "hbase-persistence-0.94",
+  "sentry-client",
+  "postgres-persistence",
+  "redis-utils",
+  // "banno-health",
+  "banno-pagerduty"
+)
