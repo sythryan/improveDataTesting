@@ -16,62 +16,71 @@ import java.io._
 import scala.util.Random
 
 import scala.util.matching.Regex
-// General Notes:
-//   1. We may want to generate some saved usernames and passwords to make them more realistic
-//        they are currently random strings
-// 
 
 trait GenerateExampleData {
-  
-  // I'm cringing at making this non functional
   private[this] var continueRunning = false
-
-  // TODO: Generalize scenarios
-  //          maybe pass the httpclient as a param
+  private[this] val home = "http://kernel-example.com:8080"
 
   // Possible Option: Change to use gattling / scripts
   // Unsure if these scenarios technically trigger the data we need
-  private[this] def pageVisit = {
+  private[this] def pageVisit(url: String): Unit = {
+    println("pageVisit: " + url)
     val httpclient: HttpClient   = new DefaultHttpClient()
-    val httpGetOne = new HttpGet("http://kernel-example.com:8080/")
+    val httpGetOne = new HttpGet(url)
   }
 
-  // Is there a cookie that we need to be passing?
-  def login = {
+  private[this] def populateExtensions(url: String): List[String] = {
     val httpclient: HttpClient   = new DefaultHttpClient()
     val context:    HttpContext  = new BasicHttpContext
 
-    val httpGetOne = new HttpGet("http://kernel-example.com:8080/")
+    val httpGetOne = new HttpGet(url)
     val response =  IOUtils.toString((httpclient.execute(httpGetOne, context).getEntity.getContent))
-    
     val pattern = """<a href(.*?)>""".r
 
     val test: List[String] = (pattern findAllIn response).toList
     val dropped = test.map(_.drop(9).takeWhile(_ != '"'))
-    val filtered = dropped.filter(_.contains(".html")).distinct
-    println(filtered)
-    // println(().mkString(","))
-    // could not find a post that I was expecting (for when clicking login)
-    // val httpGetTwo = new HttpGet("http://kernel-example.com:8080/logged-in.html?user_id=" + generateUserId + "&password=" + generatePassword)
+    dropped.filter(_.contains(".html")).distinct
+  }
+
+  def login = {
+    val httpclient: HttpClient   = new DefaultHttpClient()
+    val context:    HttpContext  = new BasicHttpContext
+
+    val httpGetOne = new HttpGet(home)
+    val httpGetTwo = new HttpGet(home + "logged-in.html?user_id=" + generateUserId + "&password=" + generatePassword)
   }
 
   def toggleOn = 
     if (!continueRunning)
+      println("toggleOn")
       continueRunning = true
       runRandomScenarios
   def toggleOff = continueRunning = false
 
-  private[this] def runRandomScenarios =
-    while (continueRunning) {
-      // add random time duraions
-      // currently biased towards pageVisit
-      Random.nextInt(3) match {
-        case 0 => login
-        case _ => pageVisit
-      }  
-    }
+  private[this] def runAScenario(url: String): Unit = {
 
-  // these could use improvement
+    val extenstions = populateExtensions(url)
+
+    Random.nextInt(4) match {
+      case 0 => Nil
+      case 1 => pageVisit(home + "/" + extenstions(Random.nextInt(extenstions.length)))
+      case 2 => 
+        val randomRoute = home + "/" + extenstions(Random.nextInt(extenstions.length)) 
+        pageVisit(randomRoute)
+        runAScenario(randomRoute)
+      case 3 => 
+        pageVisit(home)
+        runAScenario(home)
+    }
+  }
+
+  // need to implement different users
+  private[this] def runRandomScenarios: Unit = {
+    while (continueRunning) {
+        runAScenario(home)
+    }  
+  }
+
   private[this] def generateUserId = Random.nextString(7) 
   private[this] def generatePassword = Random.nextString(10)
               
@@ -79,6 +88,7 @@ trait GenerateExampleData {
 
 object main extends GenerateExampleData {
   def main(args: Array[String]): Unit = {
-    login 
+    toggleOn
+    toggleOn
   }
 }
