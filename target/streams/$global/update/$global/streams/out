@@ -7,7 +7,7 @@
 [0m[[0mdebug[0m] [0m== resolving dependencies for the-collective-tester#the-collective-tester_2.10;0.1-SNAPSHOT [compile][0m
 [0m[[0mdebug[0m] [0m== resolving dependencies the-collective-tester#the-collective-tester_2.10;0.1-SNAPSHOT->org.scala-lang#scala-library;2.10.4 [compile->default(compile)][0m
 [0m[[0minfo[0m] [0mResolving org.scala-lang#scala-library;2.10.4 ...[0m
-[0m[[0mdebug[0m] [0msbt-chain: Checking cache for: sbt.ivyint.MergedDescriptors@78f0a824[0m
+[0m[[0mdebug[0m] [0msbt-chain: Checking cache for: sbt.ivyint.MergedDescriptors@d3a8a09[0m
 [0m[[0mdebug[0m] [0msbt-chain: module revision found in cache: org.scala-lang#scala-library;2.10.4[0m
 [0m[[0mdebug[0m] [0m	local: revision in cache: org.scala-lang#scala-library;2.10.4[0m
 [0m[[0mdebug[0m] [0m	found org.scala-lang#scala-library;2.10.4 in sbt-chain[0m
@@ -476,7 +476,7 @@
 [0m[[0mdebug[0m] [0m	[NOT REQUIRED] org.scala-lang#scala-reflect;2.10.4!scala-reflect.jar[0m
 [0m[[0mdebug[0m] [0m	[NOT REQUIRED] org.scala-lang#jline;2.10.4!jline.jar[0m
 [0m[[0mdebug[0m] [0m	[NOT REQUIRED] org.fusesource.jansi#jansi;1.4!jansi.jar[0m
-[0m[[0mdebug[0m] [0m:: resolution report :: resolve 692ms :: artifacts dl 26ms[0m
+[0m[[0mdebug[0m] [0m:: resolution report :: resolve 485ms :: artifacts dl 19ms[0m
 [0m[[0mdebug[0m] [0m	report for the-collective-tester#the-collective-tester_2.10;0.1-SNAPSHOT compile produced in /home/syth/tester/target/resolution-cache/reports/the-collective-tester-the-collective-tester_2.10-compile.xml[0m
 [0m[[0mdebug[0m] [0m	report for the-collective-tester#the-collective-tester_2.10;0.1-SNAPSHOT runtime produced in /home/syth/tester/target/resolution-cache/reports/the-collective-tester-the-collective-tester_2.10-runtime.xml[0m
 [0m[[0mdebug[0m] [0m	report for the-collective-tester#the-collective-tester_2.10;0.1-SNAPSHOT test produced in /home/syth/tester/target/resolution-cache/reports/the-collective-tester-the-collective-tester_2.10-test.xml[0m
@@ -490,5 +490,5 @@
 [0m[[0mdebug[0m] [0m	report for the-collective-tester#the-collective-tester_2.10;0.1-SNAPSHOT docs produced in /home/syth/tester/target/resolution-cache/reports/the-collective-tester-the-collective-tester_2.10-docs.xml[0m
 [0m[[0mdebug[0m] [0m	report for the-collective-tester#the-collective-tester_2.10;0.1-SNAPSHOT pom produced in /home/syth/tester/target/resolution-cache/reports/the-collective-tester-the-collective-tester_2.10-pom.xml[0m
 [0m[[0mdebug[0m] [0m	report for the-collective-tester#the-collective-tester_2.10;0.1-SNAPSHOT scala-tool produced in /home/syth/tester/target/resolution-cache/reports/the-collective-tester-the-collective-tester_2.10-scala-tool.xml[0m
-[0m[[0mdebug[0m] [0m	resolve done (692ms resolve - 26ms download)[0m
+[0m[[0mdebug[0m] [0m	resolve done (485ms resolve - 19ms download)[0m
 [0m[[0minfo[0m] [0mDone updating.[0m
