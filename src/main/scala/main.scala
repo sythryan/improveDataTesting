@@ -48,7 +48,7 @@ trait GenerateExampleData {
 
     val test: List[String] = (pattern findAllIn response).toList
     val dropped = test.map(_.drop(9).takeWhile(_ != '"'))
-    val filtered = dropped.filter(_.contains(".html")).toSet.toList
+    val filtered = dropped.filter(_.contains(".html")).distinct
     println(filtered)
     // println(().mkString(","))
     // could not find a post that I was expecting (for when clicking login)
