@@ -52,14 +52,14 @@ trait GenerateExampleData {
 
   def toggleOn = 
     if (!continueRunning)
-      println("toggleOn")
       continueRunning = true
       runRandomScenarios
   def toggleOff = continueRunning = false
 
   private[this] def runAScenario(url: String): Unit = {
 
-    while(continueRunningn) {
+    while(continueRunning) {
+      Thread.sleep(Random.nextInt(2000) + 100)
 
     val extenstions = populateExtensions(url)
 
@@ -80,6 +80,7 @@ trait GenerateExampleData {
   // need to implement different users
   private[this] def runRandomScenarios: Unit = {
     while (continueRunning) {
+      Thread.sleep(Random.nextInt(10000) + 500)
         runAScenario(home)
     }  
   }
