@@ -1,87 +1,70 @@
 import org.apache.http.impl.client.DefaultHttpClient
-import java.net.{URLConnection, URL}
-import java.util.ArrayList
-import java.util.Scanner
 import org.apache.http.protocol._
 import org.apache.commons.io._
-import org.apache.http.message.BasicNameValuePair
-import org.apache.http.client.entity.UrlEncodedFormEntity
-import org.apache.http.HttpEntity
-import org.apache.http.util.EntityUtils
 import org.apache.http.client.HttpClient
-import org.apache.http.client.methods.{HttpGet, HttpPost}
-import java.io.{BufferedReader, InputStreamReader, InputStream}
-import scala.xml._
-import java.io._
+import org.apache.http.client.methods.HttpGet
 import scala.util.Random
-
 import scala.util.matching.Regex
 
 trait GenerateExampleData {
   private[this] var continueRunning = false
   private[this] val home = "http://kernel-example.com:8080"
 
-  // Possible Option: Change to use gattling / scripts
+  // Possible Options: 
+  //    Change to use gattling / scripts
+  //    use akka scheduler instead of thread.sleep
+  //    delays aren't long enough to be realistic, sped up for testing
+  //
   // Unsure if these scenarios technically trigger the data we need
-  private[this] def pageVisit(url: String): Unit = {
+  private[this] def pageVisit(client: HttpClient, url: String): String = {
     println("pageVisit: " + url)
-    val httpclient: HttpClient   = new DefaultHttpClient()
     val httpGetOne = new HttpGet(url)
+    val context: HttpContext  = new BasicHttpContext
+    IOUtils.toString((client.execute(httpGetOne, context).getEntity.getContent))
   }
 
-  private[this] def populateExtensions(url: String): List[String] = {
-    val httpclient: HttpClient   = new DefaultHttpClient()
-    val context:    HttpContext  = new BasicHttpContext
-
-    val httpGetOne = new HttpGet(url)
-    val response =  IOUtils.toString((httpclient.execute(httpGetOne, context).getEntity.getContent))
+  private[this] def populateExtensions(response: String): List[String] = {
     val pattern = """<a href(.*?)>""".r
-
-    val test: List[String] = (pattern findAllIn response).toList
-    val dropped = test.map(_.drop(9).takeWhile(_ != '"'))
-    dropped.filter(_.contains(".html")).distinct
+    val rawList: List[String] = (pattern findAllIn response).toList
+    val refinedList = rawList.map(_.drop(9).takeWhile(_ != '"'))
+    refinedList.filter(_.contains(".html")).distinct
   }
 
-  def login = {
+  def login: String = {
     val httpclient: HttpClient   = new DefaultHttpClient()
     val context:    HttpContext  = new BasicHttpContext
 
     val httpGetOne = new HttpGet(home)
-    val httpGetTwo = new HttpGet(home + "logged-in.html?user_id=" + generateUserId + "&password=" + generatePassword)
+    val randomUserRoute = home + "logged-in.html?user_id=" + generateUserId + "&password=" + generatePassword
+    val httpGetTwo = new HttpGet(randomUserRoute)
+    randomUserRoute
   }
 
-  def toggleOn = 
-    if (!continueRunning)
-      continueRunning = true
-      runRandomScenarios
+  def toggleOn = if (!continueRunning) {
+    continueRunning = true
+    runRandomScenarios
+  }
   def toggleOff = continueRunning = false
 
-  private[this] def runAScenario(url: String): Unit = {
+  private[this] def runAScenario(client: HttpClient, url: String, response: String): Unit = {
+    Thread.sleep(Random.nextInt(5000) + 1000)
+    val extenstions = populateExtensions(response)
 
-    while(continueRunning) {
-      Thread.sleep(Random.nextInt(2000) + 100)
-
-    val extenstions = populateExtensions(url)
-
-      Random.nextInt(4) match {
-        case 0 => Nil
-        case 1 => pageVisit(home + "/" + extenstions(Random.nextInt(extenstions.length)))
-        case 2 => 
-          val randomRoute = home + "/" + extenstions(Random.nextInt(extenstions.length)) 
-          pageVisit(randomRoute)
-          runAScenario(randomRoute)
-        case 3 => 
-          pageVisit(home)
-          runAScenario(home)
-      }
+      Random.nextInt(7) match {
+        case 0 | 1=> Nil
+        case _ => 
+          val randomRoute = home + "/" + extenstions(Random.nextInt(extenstions.length))
+          runAScenario(client, randomRoute, pageVisit(client, randomRoute))
     }
   }
 
   // need to implement different users
   private[this] def runRandomScenarios: Unit = {
     while (continueRunning) {
-      Thread.sleep(Random.nextInt(10000) + 500)
-        runAScenario(home)
+      val httpclient: HttpClient = new DefaultHttpClient() // maybe makes different users
+      println("new client")
+      Thread.sleep(Random.nextInt(7000) + 500)
+      runAScenario(httpclient, home, pageVisit(httpclient, home))
     }  
   }
 
@@ -93,6 +76,7 @@ trait GenerateExampleData {
 object main extends GenerateExampleData {
   def main(args: Array[String]): Unit = {
     toggleOn
-    toggleOn
+    Thread.sleep(10000)
+    toggleOff
   }
 }
