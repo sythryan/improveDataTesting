@@ -59,18 +59,21 @@ trait GenerateExampleData {
 
   private[this] def runAScenario(url: String): Unit = {
 
+    while(continueRunningn) {
+
     val extenstions = populateExtensions(url)
 
-    Random.nextInt(4) match {
-      case 0 => Nil
-      case 1 => pageVisit(home + "/" + extenstions(Random.nextInt(extenstions.length)))
-      case 2 => 
-        val randomRoute = home + "/" + extenstions(Random.nextInt(extenstions.length)) 
-        pageVisit(randomRoute)
-        runAScenario(randomRoute)
-      case 3 => 
-        pageVisit(home)
-        runAScenario(home)
+      Random.nextInt(4) match {
+        case 0 => Nil
+        case 1 => pageVisit(home + "/" + extenstions(Random.nextInt(extenstions.length)))
+        case 2 => 
+          val randomRoute = home + "/" + extenstions(Random.nextInt(extenstions.length)) 
+          pageVisit(randomRoute)
+          runAScenario(randomRoute)
+        case 3 => 
+          pageVisit(home)
+          runAScenario(home)
+      }
     }
   }
 
