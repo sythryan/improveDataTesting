@@ -12,8 +12,4 @@
 [0m[[0mdebug[0m] [0m	/home/syth/.ivy2/cache/org.apache.httpcomponents/httpcore/jars/httpcore-4.1.2.jar[0m
 [0m[[0mdebug[0m] [0m	/home/syth/.ivy2/cache/commons-logging/commons-logging/jars/commons-logging-1.1.1.jar[0m
 [0m[[0mdebug[0m] [0m	/home/syth/.ivy2/cache/commons-codec/commons-codec/jars/commons-codec-1.4.jar[0m
-[0m[[0mdebug[0m] [0mWaiting for thread run-main-6 to terminate.[0m
-[0m[[0mdebug[0m] [0m	Thread run-main-6 exited.[0m
-[0m[[0mdebug[0m] [0mInterrupting remaining threads (should be all daemons).[0m
-[0m[[0mdebug[0m] [0mSandboxed run complete..[0m
-[0m[[0mdebug[0m] [0mExited with code 0[0m
+[0m[[0mdebug[0m] [0mWaiting for thread run-main-0 to terminate.[0m

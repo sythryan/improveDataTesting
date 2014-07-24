@@ -1,4 +1,4 @@
-name := "Syth Ryan Capital One Project"
+name := "the Collective, tester"
 
 
 libraryDependencies ++= Seq(
