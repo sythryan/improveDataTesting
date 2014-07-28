@@ -6,4 +6,7 @@
 [0m[[0mdebug[0m] [0m	URLRepository(sbt-plugin-releases,Patterns(ivyPatterns=List(http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/[organisation]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]), artifactPatterns=List(http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/[organisation]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]), isMavenCompatible=false, descriptorOptional=false, skipConsistencyCheck=false))[0m
 [0m[[0mdebug[0m] [0m	FileRepository(local,FileConfiguration(true,None),Patterns(ivyPatterns=List(${ivy.home}/local/[organisation]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]), artifactPatterns=List(${ivy.home}/local/[organisation]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]), isMavenCompatible=false, descriptorOptional=false, skipConsistencyCheck=false))[0m
 [0m[[0mdebug[0m] [0m	public: http://repo1.maven.org/maven2/[0m
+[0m[[0mdebug[0m] [0m	Banno Snapshots Repo: http://nexus.banno.com/nexus/content/repositories/snapshots[0m
+[0m[[0mdebug[0m] [0m	Banno Releases Repo: http://nexus.banno.com/nexus/content/repositories/releases[0m
+[0m[[0mdebug[0m] [0m	Banno External Repo: http://nexus.banno.com/nexus/content/groups/external/[0m
 [0m[[0mdebug[0m] [0mUsing inline dependencies specified in Scala.[0m

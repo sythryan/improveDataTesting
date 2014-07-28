@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0" xmlns:e="http://ant.apache.org/ivy/extra">
+	<info organisation="com.banno"
+		module="the-collective-tester_2.10"
+		revision="1-SNAPSHOT"
+		status="integration"
+		publication="20140728085049"
+	>
+		<description>
+		the Collective, tester
+		</description>
+	</info>
+	<configurations>
+		<conf name="compile" visibility="public" description=""/>
+		<conf name="runtime" visibility="public" description="" extends="compile"/>
+		<conf name="test" visibility="public" description="" extends="runtime"/>
+		<conf name="provided" visibility="public" description=""/>
+		<conf name="optional" visibility="public" description=""/>
+		<conf name="compile-internal" visibility="private" description="" extends="compile,optional,provided"/>
+		<conf name="runtime-internal" visibility="private" description="" extends="runtime,optional"/>
+		<conf name="test-internal" visibility="private" description="" extends="test,optional,provided"/>
+		<conf name="plugin" visibility="private" description=""/>
+		<conf name="sources" visibility="public" description=""/>
+		<conf name="docs" visibility="public" description=""/>
+		<conf name="pom" visibility="public" description=""/>
+		<conf name="scala-tool" visibility="private" description=""/>
+	</configurations>
+	<publications>
+		<artifact name="the-collective-tester_2.10" type="pom" ext="pom" conf="pom"/>
+		<artifact name="the-collective-tester_2.10" type="jar" ext="jar" conf="compile"/>
+	</publications>
+	<dependencies>
+		<dependency org="org.scala-lang" name="scala-compiler" rev="2.10.3" conf="scala-tool->default,optional(default)"/>
+		<dependency org="org.scala-lang" name="scala-library" rev="2.10.3" conf="scala-tool->default,optional(default);compile->default(compile)"/>
+		<dependency org="com.banno" name="banno-utils_2.10" rev="1-SNAPSHOT" conf="compile->default(compile)"/>
+		<dependency org="com.banno" name="sentry-client_2.10" rev="1-SNAPSHOT" conf="compile->default(compile)"/>
+		<dependency org="com.banno" name="postgres-persistence_2.10" rev="1-SNAPSHOT" conf="compile->default(compile)"/>
+		<dependency org="com.banno" name="redis-utils_2.10" rev="1-SNAPSHOT" conf="compile->default(compile)"/>
+		<dependency org="com.banno" name="banno-pagerduty_2.10" rev="1-SNAPSHOT" conf="compile->default(compile)"/>
+		<dependency org="org.joda" name="joda-convert" rev="1.1" conf="compile->default(compile)"/>
+		<dependency org="joda-time" name="joda-time" rev="2.0" conf="compile->default(compile)"/>
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.5" conf="compile->default(compile)"/>
+		<dependency org="org.slf4j" name="log4j-over-slf4j" rev="1.7.5" conf="compile->default(compile)"/>
+		<dependency org="org.slf4j" name="jcl-over-slf4j" rev="1.7.5" conf="compile->default(compile)"/>
+		<dependency org="ch.qos.logback" name="logback-core" rev="1.0.13" conf="compile->default(compile)"/>
+		<dependency org="ch.qos.logback" name="logback-classic" rev="1.0.13" conf="compile->default(compile)"/>
+		<dependency org="net.sourceforge.htmlcleaner" name="htmlcleaner" rev="2.2" conf="compile->default(compile)"/>
+		<dependency org="org.apache.commons" name="commons-io" rev="1.3.2" conf="compile->default(compile)"/>
+		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.1.2" conf="compile->default(compile)"/>
+		<exclude org="commons-logging" module="commons-logging" artifact="*" type="*" ext="*" matcher="exact"/>
+		<exclude org="log4j" module="log4j" artifact="*" type="*" ext="*" matcher="exact"/>
+		<exclude org="org.slf4j" module="slf4j-log4j12" artifact="*" type="*" ext="*" matcher="exact"/>
+		<exclude org="org.slf4j" module="slf4j-simple" artifact="*" type="*" ext="*" matcher="exact"/>
+		<exclude org="asm" module="asm" artifact="*" type="*" ext="*" matcher="exact"/>
+		<exclude org="com.esotericsoftware.minlog" module="minlog" artifact="*" type="*" ext="*" matcher="exact"/>
+		<exclude org="org.eclipse.jetty.orbit" module="javax.servlet" artifact="*" type="*" ext="*" matcher="exact"/>
+		<exclude org="org.jruby" module="jruby-complete" artifact="*" type="*" ext="*" matcher="exact"/>
+		<exclude org="com.sun.jersey" module="jersey-core" artifact="*" type="*" ext="*" matcher="exact"/>
+		<exclude org="com.sun.jersey" module="jersey-server" artifact="*" type="*" ext="*" matcher="exact"/>
+		<exclude org="com.sun.jersey" module="jersey-json" artifact="*" type="*" ext="*" matcher="exact"/>
+		<exclude org="javax.ws.rs" module="jsr311-api" artifact="*" type="*" ext="*" matcher="exact"/>
+		<exclude org="tomcat" module="jasper-compiler" artifact="*" type="*" ext="*" matcher="exact"/>
+		<exclude org="tomcat" module="jasper-runtime" artifact="*" type="*" ext="*" matcher="exact"/>
+		<exclude org="org.mortbay.jetty" module="jetty" artifact="*" type="*" ext="*" matcher="exact"/>
+		<exclude org="org.mortbay.jetty" module="jetty-util" artifact="*" type="*" ext="*" matcher="exact"/>
+		<exclude org="org.mortbay.jetty" module="servlet-api" artifact="*" type="*" ext="*" matcher="exact"/>
+		<exclude org="org.mortbay.jetty" module="servlet-api-2.5" artifact="*" type="*" ext="*" matcher="exact"/>
+		<exclude org="org.mortbay.jetty" module="jsp-2.1" artifact="*" type="*" ext="*" matcher="exact"/>
+		<exclude org="org.mortbay.jetty" module="jsp-api-2.1" artifact="*" type="*" ext="*" matcher="exact"/>
+		<exclude org="org.apache.hadoop" module="avro" artifact="*" type="*" ext="*" matcher="exact"/>
+		<exclude org="org.apache.avro" module="avro-ipc" artifact="*" type="*" ext="*" matcher="exact"/>
+		<exclude org="org.apache.thrift" module="thrift" artifact="*" type="*" ext="*" matcher="exact"/>
+		<override org="ch.qos.logback" module="logback-core" matcher="exact" rev="1.0.13"/>
+		<override org="ch.qos.logback" module="logback-classic" matcher="exact" rev="1.0.13"/>
+	</dependencies>
+</ivy-module>

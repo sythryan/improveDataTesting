@@ -36,3 +36,11 @@ compile
 test
 run
 exit
+compile
+run
+compile
+run
+compile
+run
+compile
+exit
