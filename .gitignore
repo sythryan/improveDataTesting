@@ -1,5 +1,1 @@
-*.class
-*.cache
-
-project/target/*
-target/*
+**/target
