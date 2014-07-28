@@ -5,14 +5,14 @@ import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import scala.util.Random
 import scala.util.matching.Regex
+import akka.actor._
+import scala.concurrent.duration.Duration
 
-trait GenerateExampleData {
-  private[this] var continueRunning = false
+trait GenerateExampleData extends Scheduling {
   private[this] val home = "http://kernel-example.com:8080"
 
   // Possible Options: 
   //    Change to use gattling / scripts
-  //    use akka scheduler instead of thread.sleep
   //    delays aren't long enough to be realistic, sped up for testing
   //
   // Unsure if these scenarios technically trigger the data we need
@@ -40,32 +40,24 @@ trait GenerateExampleData {
     randomUserRoute
   }
 
-  def toggleOn = if (!continueRunning) {
-    continueRunning = true
-    runRandomScenarios
-  }
-  def toggleOff = continueRunning = false
-
-  private[this] def runAScenario(client: HttpClient, url: String, response: String): Unit = {
-    Thread.sleep(Random.nextInt(5000) + 1000)
-    val extenstions = populateExtensions(response)
+  private[this] def runAScenario(client: HttpClient, url: String, response: String) {
+      val extenstions = populateExtensions(response)
 
       Random.nextInt(7) match {
-        case 0 | 1=> Nil
+        case 0 | 1 => println("stop"); Nil
         case _ => 
-          val randomRoute = home + "/" + extenstions(Random.nextInt(extenstions.length))
-          runAScenario(client, randomRoute, pageVisit(client, randomRoute))
-    }
+          val randomRoute = home + "/" + extenstions(Random.nextInt(extenstions.length)) // n must be positive error from Random.nextInt(0)
+          val waitSeconds = 0 //+ Random.nextInt(???)
+          runWithWait(waitSeconds)(runAScenario(client, randomRoute, pageVisit(client, randomRoute)))
+      }
   }
 
   // need to implement different users
-  private[this] def runRandomScenarios: Unit = {
-    while (continueRunning) {
-      val httpclient: HttpClient = new DefaultHttpClient() // maybe makes different users
-      println("new client")
-      Thread.sleep(Random.nextInt(7000) + 500)
-      runAScenario(httpclient, home, pageVisit(httpclient, home))
-    }  
+  protected[this] def runRandomScenarios {
+        val httpclient: HttpClient = new DefaultHttpClient() // maybe makes different users
+        println("new client")
+
+        runAScenario(httpclient, home, pageVisit(httpclient, home))
   }
 
   private[this] def generateUserId = Random.nextString(7) 
@@ -73,10 +65,35 @@ trait GenerateExampleData {
               
 }
 
-object main extends GenerateExampleData {
+trait Scheduling {
+
+  protected[this] val actorSystem = ActorSystem()
+  private[this] val scheduler = actorSystem.scheduler
+  implicit val executor = actorSystem.dispatcher
+
+  def runOnSchedule(delay: Int, frequency: Int)(task: => Unit): Cancellable = {
+    val cancellable = scheduler.schedule(
+      Duration(delay, "seconds"),
+      Duration(frequency, "seconds"))(task)
+
+    cancellable
+  }
+
+  def runWithWait(waitTime: Int)(task: => Unit) {
+    scheduler.scheduleOnce(Duration(waitTime, "seconds"))(task)
+  }
+}
+
+object main extends GenerateExampleData with Scheduling {
   def main(args: Array[String]): Unit = {
-    toggleOn
-    Thread.sleep(10000)
-    toggleOff
+    val cancellable = {
+      val delay = 3
+      val frequency = 5 //+ Random.nextInt(???)
+      runOnSchedule(delay, frequency)(runRandomScenarios) 
+      //^^ This sets `runRandomScenarious` to run every `frequency` seconds until .cancel() is called
+    }
+    val runLength = 30
+    runWithWait(runLength)(cancellable.cancel())
+    runWithWait(runLength + 1)(actorSystem.shutdown)
   }
 }
