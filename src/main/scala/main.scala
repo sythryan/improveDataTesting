@@ -7,15 +7,23 @@ import scala.util.Random
 import scala.util.matching.Regex
 import akka.actor._
 import scala.concurrent.duration.Duration
+import com.banno.utils.BannoUuid.newUuidString
 
 trait GenerateExampleData extends Scheduling {
   private[this] val home = "http://kernel-example.com:8080"
+  val profileCount = 5
+
+  val random = new scala.util.Random(System.currentTimeMillis / 10000)
+  def randomElement[A](seq: Seq[A]) = seq(random.nextInt(seq.size))
+  def randomElements[A](n: Int)(seq: Seq[A]): Seq[A] =
+    if (n <= 0) Seq.empty[A] else if (seq.size <= n) seq else { val a = randomElement(seq); a +: randomElements(n-1)(seq.filterNot(_ == a)) }
 
   case class Profile(id: String, userAgent: Option[String], ip: Option[String])
   def randomUserAgent = randomElement(UserAgents)
   def randomIp() = if (random.nextDouble <= ipProbability) Some(randomElement(ips)) else None
-  val profiles = List.fill(profileCount)(Profile(newUuid, Some(randomUserAgent), randomIp()))
+  val profiles = List.fill(profileCount)(Profile(newUuidString, Some(randomUserAgent), randomIp()))
   def randomProfile() = randomElement(profiles)
+
 
   // Possible Options: 
   //    Change to use gattling / scripts
@@ -26,7 +34,7 @@ trait GenerateExampleData extends Scheduling {
     println("pageVisit: " + url)
     val httpGetOne = new HttpGet(url)
     val context: HttpContext  = new BasicHttpContext
-    httpGetOne.setHeader("If-Modified-Since","11/26/2012");
+    // httpGetOne.setHeader("USER-AGENT",)
     IOUtils.toString((client.execute(httpGetOne, context).getEntity.getContent))
   }
 
