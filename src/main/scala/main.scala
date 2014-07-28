@@ -47,20 +47,8 @@ trait GenerateExampleData extends Scheduling {
     randomUserRoute
   }
 
-<<<<<<< HEAD
-  def toggleOn = if (!continueRunning) {
-    continueRunning = true
-    runRandomScenarios
-  }
-  def toggleOff = continueRunning = false
-
-  private[this] def runAScenario(client: HttpClient, url: String, response: String): Unit = {
-    Thread.sleep(Random.nextInt(500) + 100)
-    val extenstions = populateExtensions(response)
-=======
   private[this] def runAScenario(client: HttpClient, url: String, response: String) {
       val extenstions = populateExtensions(response)
->>>>>>> adb728c338551741a1a709fbe40b1b0a7acab151
 
       Random.nextInt(7) match {
         case 0 | 1 => println("stop"); Nil
@@ -72,21 +60,11 @@ trait GenerateExampleData extends Scheduling {
   }
 
   // need to implement different users
-<<<<<<< HEAD
-  private[this] def runRandomScenarios: Unit = {
-    while (continueRunning) {
-      val httpclient: HttpClient = new DefaultHttpClient() // maybe makes different users
-      println("new client")
-      Thread.sleep(Random.nextInt(700) + 500)
-      runAScenario(httpclient, home, pageVisit(httpclient, home))
-    }  
-=======
   protected[this] def runRandomScenarios {
         val httpclient: HttpClient = new DefaultHttpClient() // maybe makes different users
         println("new client")
 
         runAScenario(httpclient, home, pageVisit(httpclient, home))
->>>>>>> adb728c338551741a1a709fbe40b1b0a7acab151
   }
 
   private[this] def generateUserId = Random.nextString(7) 
@@ -135,11 +113,6 @@ trait Scheduling {
 
 object main extends GenerateExampleData with Scheduling {
   def main(args: Array[String]): Unit = {
-<<<<<<< HEAD
-    toggleOn
-    Thread.sleep(500)
-    toggleOff
-=======
     val cancellable = {
       val delay = 3
       val frequency = 5 //+ Random.nextInt(???)
@@ -149,6 +122,5 @@ object main extends GenerateExampleData with Scheduling {
     val runLength = 30
     runWithWait(runLength)(cancellable.cancel())
     runWithWait(runLength + 1)(actorSystem.shutdown)
->>>>>>> adb728c338551741a1a709fbe40b1b0a7acab151
   }
 }
