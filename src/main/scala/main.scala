@@ -18,11 +18,8 @@ trait GenerateExampleData extends Scheduling {
   def randomElements[A](n: Int)(seq: Seq[A]): Seq[A] =
     if (n <= 0) Seq.empty[A] else if (seq.size <= n) seq else { val a = randomElement(seq); a +: randomElements(n-1)(seq.filterNot(_ == a)) }
 
-  case class Profile(id: String, userAgent: Option[String], ip: Option[String])
   def randomUserAgent = randomElement(UserAgents)
   def randomIp() = if (random.nextDouble <= ipProbability) Some(randomElement(ips)) else None
-  val profiles = List.fill(profileCount)(Profile(newUuidString, Some(randomUserAgent), randomIp()))
-  def randomProfile() = randomElement(profiles)
 
 
   // Possible Options: 
@@ -34,7 +31,9 @@ trait GenerateExampleData extends Scheduling {
     println("pageVisit: " + url)
     val httpGetOne = new HttpGet(url)
     val context: HttpContext  = new BasicHttpContext
-    // httpGetOne.setHeader("USER-AGENT",)
+    httpGetOne.setHeader("USER-AGENT", randomUserAgent)
+    httpGetOne.setHeader("user_id", newUuidString)
+    httpGetOne.setHeader("ip", randomIp().getOrElse(""))
     IOUtils.toString((client.execute(httpGetOne, context).getEntity.getContent))
   }
 
