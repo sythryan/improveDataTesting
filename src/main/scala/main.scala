@@ -1,3 +1,5 @@
+package main
+
 import org.apache.http.impl.client.DefaultHttpClient
 import org.apache.http.protocol._
 import org.apache.commons.io._
@@ -7,6 +9,8 @@ import scala.util.Random
 import scala.util.matching.Regex
 import akka.actor._
 import scala.concurrent.duration.Duration
+import org.apache.http.cookie.Cookie
+import org.apache.http.util.EntityUtils
 
 trait GenerateExampleData extends Scheduling {
   private[this] val home = "http://kernel-example.com:8080"
@@ -29,10 +33,9 @@ trait GenerateExampleData extends Scheduling {
   private[this] def pageVisit(client: HttpClient, url: String): String = {
     println("pageVisit: " + url)
     val httpGetOne = new HttpGet(url)
-    val context: HttpContext  = new BasicHttpContext
-    httpGetOne.setHeader("USER-AGENT", randomUserAgent)
-    httpGetOne.setHeader("ip", randomIp().getOrElse(""))
-    IOUtils.toString((client.execute(httpGetOne, context).getEntity.getContent))
+    // httpGetOne.setHeader("USER-AGENT", randomUserAgent) // random every page, need to pass in as param
+    // httpGetOne.setHeader("ip", randomIp().getOrElse(""))
+    IOUtils.toString((client.execute(httpGetOne).getEntity.getContent))
   }
 
   private[this] def populateExtensions(response: String): List[String] = {
