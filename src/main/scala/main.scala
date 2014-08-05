@@ -9,12 +9,13 @@ import scala.util.Random
 import scala.util.matching.Regex
 import akka.actor._
 import scala.concurrent.duration.Duration
-import org.apache.http.cookie.Cookie
 import org.apache.http.util.EntityUtils
 
 trait GenerateExampleData extends Scheduling {
-  private[this] val home = "http://kernel-example.com:8080"
+  val home = "http://kernel-example.com:8080"
   val profileCount = 5
+
+  case class PageParameters(keywords: String, ads: String)
 
   val random = new scala.util.Random(System.currentTimeMillis / 10000)
   def randomElement[A](seq: Seq[A]) = seq(random.nextInt(seq.size))
@@ -24,8 +25,9 @@ trait GenerateExampleData extends Scheduling {
   def randomUserAgent = randomElement(UserAgents)
   def randomIp() = if (random.nextDouble <= ipProbability) Some(randomElement(ips)) else None
 
-  private[this] def getResponse(client: HttpClient, url: String): String = {
+  def getResponse(url: String): String = {
     println("getResponse: " + url)
+    val client = HttpClientBuilder.create().build()
     val httpGetOne = new HttpGet(url)
     IOUtils.toString((client.execute(httpGetOne).getEntity.getContent))
   }
@@ -37,6 +39,11 @@ trait GenerateExampleData extends Scheduling {
     refinedList.filter(_.contains(".html")).distinct
   }
 
+  private[this] def populateParameters(response: String): PageParameters = {
+    println("populateParameters needs implemented")
+    PageParameters("","")
+  }
+
   def generateUserID: String = {
     val client = HttpClientBuilder.create().build()
     val url = "http://localhost:9091/kernel.js"
@@ -46,24 +53,33 @@ trait GenerateExampleData extends Scheduling {
     response.substring(findETagStart,findETagEnd)
   }
 
-
-  def pageVisit(id: String, keywords: String, extension: String) {
+  def kernelServeCall(id: String, extension: String, parameters: String) {
     val client = HttpClientBuilder.create().build()
-    val url = "http://kernel-serve.com:9091/institutions/8eac4943-acd6-40d6-b9a0-ecba52bc35ef/profiles/" + id + extension + keywords
+    val url = "http://kernel-serve.com:9091/institutions/8eac4943-acd6-40d6-b9a0-ecba52bc35ef/profiles/" + id + extension + parameters
     val get = new HttpGet(url)
     val response = client.execute(get).toString
-    println(url)
-    println(response)
   }
 
-  def runRandomScenarious(id: String) = Random.nextInt(3) match {
-      // case 0 => println("stop")
-      //           Nil
-      // case 1 => pageVisit(id, "")
-      case _ => pageVisit(id, "?keywords=business+checking,business", "/visit")
-                pageVisit(id, "?placements=subAd1:300x120,subAd2:300x120" , "/serve")
+  def visit(id:String, response: String): Unit = 
+    kernelServeCall(id, "/visit?keywords=", populateParameters(response).keywords)
 
+  def impression(id:String, response: String): Unit = 
+    kernelServeCall(id, "/serve?placements=", populateParameters(response).ads)
+
+  private[this] def runARandomScenario(id: String, response: String, extension: String): Unit = {
+    val url = (home + "/" + extension)
+    println("URL:" + url)
+    val extensions = populateExtensions(response)
+
+    Random.nextInt(3) match {
+      case 1 | 2 => println("stop")
+      case _ => visit(id, response)
+                impression(id,response)
+                runARandomScenario(id, getResponse(url), extensions(Random.nextInt(extensions.length)) )
+    }
   }
+
+  def runRandomScenarios(id: String, response: String): Unit = runARandomScenario(id, getResponse(home), "")
 
   private[this] lazy val WindowsDesktop = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6"
   private[this] lazy val MacDesktop = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36"
@@ -109,7 +125,7 @@ object main extends GenerateExampleData with Scheduling {
     val cancellable = {
       val delay = 3
       val frequency = 5 //+ Random.nextInt(???)
-      runOnSchedule(delay, frequency)(runRandomScenarious(generateUserID)) 
+      runOnSchedule(delay, frequency)(runRandomScenarios(generateUserID, getResponse(home))) 
       //^^ This sets `runRandomScenarious` to run every `frequency` seconds until .cancel() is called
     }
     val runLength = 30
