@@ -48,20 +48,21 @@ trait GenerateExampleData extends Scheduling {
   }
 
 
-  def pageVisit(id: String, keywords: String) {
+  def pageVisit(id: String, keywords: String, extension: String) {
     val client = new DefaultHttpClient()
-    val url = "http://kernel-serve.com:9091/institutions/8eac4943-acd6-40d6-b9a0-ecba52bc35ef/profiles/" + id + "/visit?" + keywords
+    val url = "http://kernel-serve.com:9091/institutions/8eac4943-acd6-40d6-b9a0-ecba52bc35ef/profiles/" + id + extension + keywords
     val get = new HttpGet(url)
     val response = client.execute(get).toString
     println(url)
     println(response)
   }
 
-  runRandomScenarious(id: String) = Random.nextInt(3) match {
-      case 0 => println("stop")
-                Nil
-      case 1 => pageVisit(id, "")
-      case _ => pageVisit(id, "keywords=business+checking,business")
+  def runRandomScenarious(id: String) = Random.nextInt(3) match {
+      // case 0 => println("stop")
+      //           Nil
+      // case 1 => pageVisit(id, "")
+      case _ => pageVisit(id, "?keywords=business+checking,business", "/visit")
+                pageVisit(id, "?placements=subAd1:300x120,subAd2:300x120" , "/serve")
 
   }
 
