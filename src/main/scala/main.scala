@@ -1,7 +1,6 @@
 package main
 
-import org.apache.http.impl.client.{BasicCookieStore, DefaultHttpClient}
-import org.apache.http.impl.cookie.BasicClientCookie
+import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.protocol._
 import org.apache.commons.io._
 import org.apache.http.client.HttpClient
@@ -39,9 +38,9 @@ trait GenerateExampleData extends Scheduling {
   }
 
   def generateUserID: String = {
-    val httpClient = new DefaultHttpClient()
+    val client = HttpClientBuilder.create().build()
     val url = "http://localhost:9091/kernel.js"
-    val response = httpClient.execute(new HttpGet(url)).toString
+    val response = client.execute(new HttpGet(url)).toString
     val findETagStart = response.indexOf("ETag: ") + 6
     val findETagEnd = response.indexOf(",",79)
     response.substring(findETagStart,findETagEnd)
@@ -49,7 +48,7 @@ trait GenerateExampleData extends Scheduling {
 
 
   def pageVisit(id: String, keywords: String, extension: String) {
-    val client = new DefaultHttpClient()
+    val client = HttpClientBuilder.create().build()
     val url = "http://kernel-serve.com:9091/institutions/8eac4943-acd6-40d6-b9a0-ecba52bc35ef/profiles/" + id + extension + keywords
     val get = new HttpGet(url)
     val response = client.execute(get).toString
