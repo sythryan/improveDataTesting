@@ -1,6 +1,7 @@
 package main
 
-import org.apache.http.impl.client.DefaultHttpClient
+import org.apache.http.impl.client.{BasicCookieStore, DefaultHttpClient}
+import org.apache.http.impl.cookie.BasicClientCookie
 import org.apache.http.protocol._
 import org.apache.commons.io._
 import org.apache.http.client.HttpClient
@@ -24,17 +25,9 @@ trait GenerateExampleData extends Scheduling {
   def randomUserAgent = randomElement(UserAgents)
   def randomIp() = if (random.nextDouble <= ipProbability) Some(randomElement(ips)) else None
 
-
-  // Possible Options: 
-  //    Change to use gattling / scripts
-  //    delays aren't long enough to be realistic, sped up for testing
-  //
-  // Unsure if these scenarios technically trigger the data we need
-  private[this] def pageVisit(client: HttpClient, url: String): String = {
-    println("pageVisit: " + url)
+  private[this] def getResponse(client: HttpClient, url: String): String = {
+    println("getResponse: " + url)
     val httpGetOne = new HttpGet(url)
-    // httpGetOne.setHeader("USER-AGENT", randomUserAgent) // random every page, need to pass in as param
-    // httpGetOne.setHeader("ip", randomIp().getOrElse(""))
     IOUtils.toString((client.execute(httpGetOne).getEntity.getContent))
   }
 
@@ -45,38 +38,32 @@ trait GenerateExampleData extends Scheduling {
     refinedList.filter(_.contains(".html")).distinct
   }
 
-  def login: String = {
-    val httpclient: HttpClient   = new DefaultHttpClient()
-    val context:    HttpContext  = new BasicHttpContext
-
-    val httpGetOne = new HttpGet(home)
-    val randomUserRoute = home + "logged-in.html?user_id=" + generateUserId + "&password=" + generatePassword
-    val httpGetTwo = new HttpGet(randomUserRoute)
-    randomUserRoute
+  def generateUserID: String = {
+    val httpClient = new DefaultHttpClient()
+    val url = "http://localhost:9091/kernel.js"
+    val response = httpClient.execute(new HttpGet(url)).toString
+    val findETagStart = response.indexOf("ETag: ") + 6
+    val findETagEnd = response.indexOf(",",79)
+    response.substring(findETagStart,findETagEnd)
   }
 
-  private[this] def runAScenario(client: HttpClient, url: String, response: String) {
-      val extenstions = populateExtensions(response)
 
-      Random.nextInt(7) match {
-        case 0 | 1 => println("stop"); Nil
-        case _ => 
-          val randomRoute = home + "/" + extenstions(Random.nextInt(extenstions.length)) // n must be positive error from Random.nextInt(0)
-          val waitSeconds = 0 //+ Random.nextInt(???)
-          runWithWait(waitSeconds)(runAScenario(client, randomRoute, pageVisit(client, randomRoute)))
-      }
+  def pageVisit(id: String, keywords: String) {
+    val client = new DefaultHttpClient()
+    val url = "http://kernel-serve.com:9091/institutions/8eac4943-acd6-40d6-b9a0-ecba52bc35ef/profiles/" + id + "/visit?" + keywords
+    val get = new HttpGet(url)
+    val response = client.execute(get).toString
+    println(url)
+    println(response)
   }
 
-  // need to implement different users
-  protected[this] def runRandomScenarios {
-        val httpclient: HttpClient = new DefaultHttpClient() // maybe makes different users
-        println("new client")
+  runRandomScenarious(id: String) = Random.nextInt(3) match {
+      case 0 => println("stop")
+                Nil
+      case 1 => pageVisit(id, "")
+      case _ => pageVisit(id, "keywords=business+checking,business")
 
-        runAScenario(httpclient, home, pageVisit(httpclient, home))
   }
-
-  private[this] def generateUserId = Random.nextString(7) 
-  private[this] def generatePassword = Random.nextString(10)
 
   private[this] lazy val WindowsDesktop = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6"
   private[this] lazy val MacDesktop = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36"
@@ -122,7 +109,7 @@ object main extends GenerateExampleData with Scheduling {
     val cancellable = {
       val delay = 3
       val frequency = 5 //+ Random.nextInt(???)
-      runOnSchedule(delay, frequency)(runRandomScenarios) 
+      runOnSchedule(delay, frequency)(runRandomScenarious(generateUserID)) 
       //^^ This sets `runRandomScenarious` to run every `frequency` seconds until .cancel() is called
     }
     val runLength = 30
