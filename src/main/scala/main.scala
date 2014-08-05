@@ -10,6 +10,8 @@ import scala.util.matching.Regex
 import akka.actor._
 import scala.concurrent.duration.Duration
 import org.apache.http.util.EntityUtils
+import xml.XML
+import scala.io.Source
 
 trait GenerateExampleData extends Scheduling {
   val home = "http://kernel-example.com:8080"
@@ -25,6 +27,13 @@ trait GenerateExampleData extends Scheduling {
   def randomUserAgent = randomElement(UserAgents)
   def randomIp() = if (random.nextDouble <= ipProbability) Some(randomElement(ips)) else None
 
+  def getKeywordMetaContent(response: String): String = {
+    val content = response.replace("><",">\n<").split("\n")
+    val metaList = content.filter(_.contains("name=\"kernel-keywords\""))
+    val metaXML = XML.loadString(metaList.map(_.replace(">","/>")).mkString(""))
+    (metaXML \\ "@content").text   
+  }
+
   def getResponse(url: String): String = {
     println("getResponse: " + url)
     val client = HttpClientBuilder.create().build()
@@ -39,11 +48,6 @@ trait GenerateExampleData extends Scheduling {
     refinedList.filter(_.contains(".html")).distinct
   }
 
-  private[this] def populateParameters(response: String): PageParameters = {
-    println("populateParameters needs implemented")
-    PageParameters("","")
-  }
-
   def generateUserID: String = {
     val client = HttpClientBuilder.create().build()
     val url = "http://localhost:9091/kernel.js"
@@ -53,33 +57,30 @@ trait GenerateExampleData extends Scheduling {
     response.substring(findETagStart,findETagEnd)
   }
 
-  def kernelServeCall(id: String, extension: String, parameters: String) {
+  def kernelServeCall(id: String, extension: String, parameters: String): Unit = {
     val client = HttpClientBuilder.create().build()
     val url = "http://kernel-serve.com:9091/institutions/8eac4943-acd6-40d6-b9a0-ecba52bc35ef/profiles/" + id + extension + parameters
     val get = new HttpGet(url)
     val response = client.execute(get).toString
   }
 
-  def visit(id:String, response: String): Unit = 
-    kernelServeCall(id, "/visit?keywords=", populateParameters(response).keywords)
+  def visit(id:String, response: String): Unit =
+    kernelServeCall(id, "/visit?keywords=", getKeywordMetaContent(response))
 
   def impression(id:String, response: String): Unit = 
-    kernelServeCall(id, "/serve?placements=", populateParameters(response).ads)
+    kernelServeCall(id, "/serve?placements=", "") // not implemented
 
-  private[this] def runARandomScenario(id: String, response: String, extension: String): Unit = {
-    val url = (home + "/" + extension)
-    println("URL:" + url)
+  def runARandomScenario(id: String, url: String): Unit = {
+    val response = getResponse(url)
     val extensions = populateExtensions(response)
 
-    Random.nextInt(3) match {
-      case 1 | 2 => println("stop")
+    Random.nextInt(4) match {
+      case 1 => println("stop")
       case _ => visit(id, response)
-                impression(id,response)
-                runARandomScenario(id, getResponse(url), extensions(Random.nextInt(extensions.length)) )
+                impression(id, response)
+                runARandomScenario(id, home + "/" + extensions(Random.nextInt(extensions.length)))
     }
   }
-
-  def runRandomScenarios(id: String, response: String): Unit = runARandomScenario(id, getResponse(home), "")
 
   private[this] lazy val WindowsDesktop = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6"
   private[this] lazy val MacDesktop = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36"
@@ -125,7 +126,7 @@ object main extends GenerateExampleData with Scheduling {
     val cancellable = {
       val delay = 3
       val frequency = 5 //+ Random.nextInt(???)
-      runOnSchedule(delay, frequency)(runRandomScenarios(generateUserID, getResponse(home))) 
+      runOnSchedule(delay, frequency)(runARandomScenario(generateUserID, home)) 
       //^^ This sets `runRandomScenarious` to run every `frequency` seconds until .cancel() is called
     }
     val runLength = 30
